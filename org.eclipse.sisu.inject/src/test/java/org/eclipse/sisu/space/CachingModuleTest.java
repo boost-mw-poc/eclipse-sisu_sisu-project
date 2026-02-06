@@ -50,8 +50,8 @@ class CachingModuleTest
         final ClassSpace space =
             new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
 
-        Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE ) );
-        Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE ) );
-        Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE ) );
+        Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE, false ) );
+        Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE, false ) );
+        Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE, false ) );
     }
 }
