@@ -147,7 +147,7 @@ final class DependencyAnalyzer extends DefaultBindingTargetVisitor<Object, Boole
                         .getImplementationClass()
                         .load();
                 analyzeImplementation(TypeLiteral.get(clazz), false);
-            } catch (final TypeNotPresentException e) // NOPMD
+            } catch (final TypeNotPresentException e) // NOSONAR
             {
                 // deferred provider, so we also defer any errors until someone actually tries to use it
             }
@@ -205,12 +205,7 @@ final class DependencyAnalyzer extends DefaultBindingTargetVisitor<Object, Boole
                             || !rhs) {
                         applyBinding = Boolean.FALSE;
                     }
-                } catch (final RuntimeException e) {
-                    if (reportErrors) {
-                        Logs.debug("Potential problem: {}", type, e);
-                    }
-                    applyBinding = Boolean.FALSE;
-                } catch (final LinkageError e) {
+                } catch (final LinkageError | RuntimeException e) {
                     if (reportErrors) {
                         Logs.debug("Potential problem: {}", type, e);
                     }

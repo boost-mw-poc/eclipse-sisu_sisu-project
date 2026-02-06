@@ -50,7 +50,7 @@ public abstract class BeanScheduler {
             if ("pessimistic".equalsIgnoreCase(detectCycles)) {
                 candidateCycle = cycleConfirmed;
             }
-        } catch (Exception | LinkageError e) {
+        } catch (LinkageError | Exception e) {
             cycleActivator = null;
         }
         CYCLE_ACTIVATOR = cycleActivator;
@@ -83,7 +83,7 @@ public abstract class BeanScheduler {
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    static final ThreadLocal<Object[]> pendingHolder = new ThreadLocal<Object[]>();
+    static final ThreadLocal<Object[]> pendingHolder = new ThreadLocal<>();
 
     // ----------------------------------------------------------------------
     // Public methods

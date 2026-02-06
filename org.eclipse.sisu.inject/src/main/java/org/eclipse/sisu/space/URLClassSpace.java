@@ -44,10 +44,7 @@ public class URLClassSpace implements ClassSpace {
         try {
             systemLoader = ClassLoader.getSystemClassLoader();
             classPath = System.getProperty("java.class.path", ".");
-        } catch (final RuntimeException e) {
-            systemLoader = null;
-            classPath = null;
-        } catch (final LinkageError e) {
+        } catch (final LinkageError | RuntimeException e) {
             systemLoader = null;
             classPath = null;
         }
@@ -131,7 +128,7 @@ public class URLClassSpace implements ClassSpace {
     }
 
     public final DeferredClass<?> deferLoadClass(final String name) {
-        return new NamedClass<Object>(this, name);
+        return new NamedClass<>(this, name);
     }
 
     public final URL getResource(final String name) {
@@ -239,11 +236,11 @@ public class URLClassSpace implements ClassSpace {
      * @return Expanded URL class path
      */
     private static URL[] expandClassPath(final URL[] classPath) {
-        final List<URL> searchPath = new ArrayList<URL>();
+        final List<URL> searchPath = new ArrayList<>();
         Collections.addAll(searchPath, classPath);
 
-        final List<URL> expandedPath = new ArrayList<URL>();
-        final Set<String> visited = new HashSet<String>();
+        final List<URL> expandedPath = new ArrayList<>();
+        final Set<String> visited = new HashSet<>();
 
         // search path may grow, so use index not iterator
         for (int i = 0; i < searchPath.size(); i++) {
@@ -261,7 +258,7 @@ public class URLClassSpace implements ClassSpace {
             for (final String entry : classPathEntries) {
                 try {
                     searchPath.add(new URL(url, entry));
-                } catch (final MalformedURLException e) // NOPMD
+                } catch (final MalformedURLException e) // NOSONAR
                 {
                     // invalid Class-Path entry
                 }
@@ -274,7 +271,7 @@ public class URLClassSpace implements ClassSpace {
     /**
      * Normalizes the given class path entry by removing any extraneous "jar:"..."!/" padding.
      *
-     * @param path The URL to normalize
+     * @param url The URL to normalize
      * @return Normalized class path entry
      */
     private static URL normalizeEntry(final URL url) {

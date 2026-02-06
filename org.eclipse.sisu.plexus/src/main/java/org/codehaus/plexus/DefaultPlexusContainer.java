@@ -573,7 +573,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
                     if (file.isFile()) {
                         try {
                             url = file.toURI().toURL();
-                        } catch (final MalformedURLException e) // NOPMD
+                        } catch (final MalformedURLException e) // NOSONAR
                         {
                             // drop through and recover
                         }
@@ -619,9 +619,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
                         return beans;
                     }
                 }
-            } catch (final Exception e) {
-                // drop through...
-            } catch (final LinkageError e) {
+            } catch (final LinkageError | Exception e) {
                 // drop through...
             }
         }
