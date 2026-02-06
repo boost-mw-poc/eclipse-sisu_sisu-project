@@ -26,7 +26,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 @SuppressWarnings({"unchecked", "deprecation"})
 public final class ClassRealmConverter extends AbstractConfigurationConverter {
-    private static ThreadLocal<Object> context = new ThreadLocal<Object>();
+    private static ThreadLocal<Object> context = new ThreadLocal<>();
 
     private final ClassRealm realm;
 
@@ -48,7 +48,7 @@ public final class ClassRealmConverter extends AbstractConfigurationConverter {
             context.set(realm);
         } else if (holder instanceof ClassRealm) {
             // upgrade from single realm to stack of realms
-            final Deque<ClassRealm> stack = new ArrayDeque<ClassRealm>();
+            final Deque<ClassRealm> stack = new ArrayDeque<>();
             stack.add(realm);
             stack.add((ClassRealm) holder);
             context.set(stack);
@@ -82,11 +82,13 @@ public final class ClassRealmConverter extends AbstractConfigurationConverter {
         return realm;
     }
 
+    @Override
     public boolean canConvert(final Class<?> type) {
         return ClassRealm.class.isAssignableFrom(type)
                 || org.codehaus.classworlds.ClassRealm.class.isAssignableFrom(type);
     }
 
+    @Override
     public Object fromConfiguration(
             final ConverterLookup lookup,
             final PlexusConfiguration configuration,

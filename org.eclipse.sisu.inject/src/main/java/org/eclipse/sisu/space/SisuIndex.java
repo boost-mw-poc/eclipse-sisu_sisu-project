@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.sisu.inject.Logs;
@@ -60,7 +61,7 @@ public class SisuIndex extends AbstractSisuIndex implements SpaceVisitor, ClassV
     // ----------------------------------------------------------------------
 
     public static void main(final String[] args) {
-        final List<URL> indexPath = new ArrayList<URL>(args.length);
+        final List<URL> indexPath = new ArrayList<>(args.length);
         for (final String path : args) {
             try {
                 indexPath.add(new File(path).toURI().toURL());
@@ -88,14 +89,17 @@ public class SisuIndex extends AbstractSisuIndex implements SpaceVisitor, ClassV
         }
     }
 
+    @Override
     public final void enterSpace(final ClassSpace _space) {
         space = _space;
     }
 
+    @Override
     public final ClassVisitor visitClass(final URL url) {
         return this;
     }
 
+    @Override
     public final void enterClass(
             final int modifiers, final String name, final String _extends, final String[] _implements) {
         if ((modifiers & NON_INSTANTIABLE) == 0) {
@@ -103,6 +107,7 @@ public class SisuIndex extends AbstractSisuIndex implements SpaceVisitor, ClassV
         }
     }
 
+    @Override
     public final AnnotationVisitor visitAnnotation(final String desc) {
         if (null != clazzName && qualifierCache.qualify(space, desc)) {
             addClassToIndex(NAMED, clazzName.replace('/', '.'));
@@ -110,10 +115,12 @@ public class SisuIndex extends AbstractSisuIndex implements SpaceVisitor, ClassV
         return null;
     }
 
+    @Override
     public final void leaveClass() {
         clazzName = null;
     }
 
+    @Override
     public final void leaveSpace() {
         space = null;
     }
@@ -134,7 +141,7 @@ public class SisuIndex extends AbstractSisuIndex implements SpaceVisitor, ClassV
 
     @Override
     protected Reader getReader(final String path) throws IOException {
-        return new InputStreamReader(new FileInputStream(new File(targetDirectory, path)), "UTF-8");
+        return new InputStreamReader(new FileInputStream(new File(targetDirectory, path)), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -142,7 +149,7 @@ public class SisuIndex extends AbstractSisuIndex implements SpaceVisitor, ClassV
         final File index = new File(targetDirectory, path);
         final File parent = index.getParentFile();
         if (parent.isDirectory() || parent.mkdirs()) {
-            return new OutputStreamWriter(new FileOutputStream(index), "UTF-8");
+            return new OutputStreamWriter(new FileOutputStream(index), StandardCharsets.UTF_8);
         }
         throw new IOException("Error creating: " + parent);
     }

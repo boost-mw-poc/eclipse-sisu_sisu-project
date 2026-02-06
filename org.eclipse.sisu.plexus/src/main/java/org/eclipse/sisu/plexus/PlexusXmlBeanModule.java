@@ -72,11 +72,12 @@ public final class PlexusXmlBeanModule implements PlexusBeanModule {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public PlexusBeanSource configure(final Binder binder) {
         binder.bind(ClassSpace.class).toInstance(space);
 
         final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder(binder);
-        final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
+        final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner(variables, plexusXml, metadataMap);
 
         final String source = space.toString();
@@ -114,6 +115,7 @@ public final class PlexusXmlBeanModule implements PlexusBeanModule {
         // Public methods
         // ----------------------------------------------------------------------
 
+        @Override
         public PlexusBeanMetadata getBeanMetadata(final Class<?> implementation) {
             if (null == metadataMap) {
                 return null;

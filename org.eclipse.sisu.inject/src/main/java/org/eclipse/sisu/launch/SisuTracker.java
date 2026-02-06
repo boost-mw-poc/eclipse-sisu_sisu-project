@@ -42,7 +42,7 @@ public class SisuTracker extends BundleTracker<Object> implements BundlePlan {
     // ----------------------------------------------------------------------
 
     static {
-        final Set<String> supportBundleNames = new HashSet<String>();
+        final Set<String> supportBundleNames = new HashSet<>();
         final Class<?>[] supportTypes = {Inject.class, Guice.class, SisuExtender.class};
         for (final Class<?> type : supportTypes) {
             final Bundle bundle = FrameworkUtil.getBundle(type);
@@ -66,7 +66,7 @@ public class SisuTracker extends BundleTracker<Object> implements BundlePlan {
     // ----------------------------------------------------------------------
 
     // attempt to track publishers across extender restarts
-    private static final Map<Long, Object> bundlePublishers = Collections.synchronizedMap(Weak.<Long, Object>values());
+    private static final Map<Long, Object> bundlePublishers = Collections.synchronizedMap(Weak.values());
 
     /**
      * Mask of bundle states being tracked.
@@ -149,6 +149,7 @@ public class SisuTracker extends BundleTracker<Object> implements BundlePlan {
     // Customizable methods
     // ----------------------------------------------------------------------
 
+    @Override
     public BindingPublisher prepare(final Bundle bundle) {
         if (SUPPORT_BUNDLE_NAMES.contains(bundle.getSymbolicName())) {
             return null; // ignore our main support bundles

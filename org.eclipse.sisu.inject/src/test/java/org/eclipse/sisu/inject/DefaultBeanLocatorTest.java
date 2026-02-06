@@ -144,28 +144,36 @@ class DefaultBeanLocatorTest {
 
         assertFalse(
                 new BindingPublisher() {
+                    @Override
                     public <T> void subscribe(final BindingSubscriber<T> subscriber) {}
 
+                    @Override
                     public <T> void unsubscribe(final BindingSubscriber<T> subscriber) {}
 
+                    @Override
                     public int maxBindingRank() {
                         return 0;
                     }
 
+                    @Override
                     public <T> T adapt(final Class<T> type) {
                         return null;
                     }
                 }.equals(new InjectorBindings(child1, function1)));
 
         assertFalse(new InjectorBindings(child2, function2).equals(new BindingPublisher() {
+            @Override
             public <T> void subscribe(final BindingSubscriber<T> subscriber) {}
 
+            @Override
             public <T> void unsubscribe(final BindingSubscriber<T> subscriber) {}
 
+            @Override
             public int maxBindingRank() {
                 return 0;
             }
 
+            @Override
             public <T> T adapt(final Class<T> type) {
                 return null;
             }
@@ -186,8 +194,7 @@ class DefaultBeanLocatorTest {
     void testInjectorOrdering() {
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        final Iterable<? extends Entry<Named, Bean>> roles =
-                locator.<Named, Bean>locate(Key.get(Bean.class, Named.class));
+        final Iterable<? extends Entry<Named, Bean>> roles = locator.locate(Key.get(Bean.class, Named.class));
 
         publishInjector(locator, parent, 0);
         publishInjector(locator, child1, 1);
@@ -319,7 +326,7 @@ class DefaultBeanLocatorTest {
         publishInjector(locator, parent, 0);
         publishInjector(locator, child1, 1);
 
-        Iterable<? extends Entry<Named, Bean>> roles = locator.<Named, Bean>locate(Key.get(Bean.class, Named.class));
+        Iterable<? extends Entry<Named, Bean>> roles = locator.locate(Key.get(Bean.class, Named.class));
 
         publishInjector(locator, child2, 2);
         publishInjector(locator, child3, 3);

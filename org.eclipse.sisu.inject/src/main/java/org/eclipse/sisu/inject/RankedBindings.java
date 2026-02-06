@@ -26,7 +26,7 @@ final class RankedBindings<T> implements Iterable<Binding<T>>, BindingSubscriber
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final transient RankedSequence<Binding<T>> bindings = new RankedSequence<Binding<T>>();
+    final transient RankedSequence<Binding<T>> bindings = new RankedSequence<>();
 
     final transient TypeLiteral<T> type;
 
@@ -40,21 +40,24 @@ final class RankedBindings<T> implements Iterable<Binding<T>>, BindingSubscriber
 
     RankedBindings(final TypeLiteral<T> type, final RankedSequence<BindingPublisher> publishers) {
         this.type = type;
-        this.pendingPublishers = new RankedSequence<BindingPublisher>(publishers);
+        this.pendingPublishers = new RankedSequence<>(publishers);
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public TypeLiteral<T> type() {
         return type;
     }
 
+    @Override
     public void add(final Binding<T> binding, final int rank) {
         bindings.insert(binding, rank);
     }
 
+    @Override
     public void remove(final Binding<T> binding) {
         if (bindings.removeThis(binding)) {
             synchronized (cachedBeans) {
@@ -65,10 +68,12 @@ final class RankedBindings<T> implements Iterable<Binding<T>>, BindingSubscriber
         }
     }
 
+    @Override
     public Iterable<Binding<T>> bindings() {
         return bindings.snapshot();
     }
 
+    @Override
     public Itr iterator() {
         return new Itr();
     }
@@ -78,7 +83,7 @@ final class RankedBindings<T> implements Iterable<Binding<T>>, BindingSubscriber
     // ----------------------------------------------------------------------
 
     <Q extends Annotation> BeanCache<Q, T> newBeanCache() {
-        final BeanCache<Q, T> beans = new BeanCache<Q, T>();
+        final BeanCache<Q, T> beans = new BeanCache<>();
         synchronized (cachedBeans) {
             cachedBeans.add(beans);
         }
@@ -122,6 +127,7 @@ final class RankedBindings<T> implements Iterable<Binding<T>>, BindingSubscriber
         // Public methods
         // ----------------------------------------------------------------------
 
+        @Override
         public boolean hasNext() {
             // apply any publishers that could add bindings before the current position
             BindingPublisher publisher = pendingPublishers.peek();
@@ -139,6 +145,7 @@ final class RankedBindings<T> implements Iterable<Binding<T>>, BindingSubscriber
             return itr.hasNext();
         }
 
+        @Override
         public Binding<T> next() {
             return itr.next();
         }
@@ -147,6 +154,7 @@ final class RankedBindings<T> implements Iterable<Binding<T>>, BindingSubscriber
             return itr.rank();
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }

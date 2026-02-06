@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -63,12 +64,12 @@ public final class IndexedClassFinder implements ClassFinder {
             indices = space.findEntries(localPath, indexName, false);
         }
 
-        final Set<String> names = new LinkedHashSet<String>();
+        final Set<String> names = new LinkedHashSet<>();
         while (indices.hasMoreElements()) {
             final URL url = indices.nextElement();
             try {
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(Streams.open(url), "UTF-8"));
-                try {
+                try (BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(Streams.open(url), StandardCharsets.UTF_8))) {
                     // each index contains a list of class names, one per line with optional comment
                     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                         final int i = line.indexOf('#');
@@ -80,8 +81,6 @@ public final class IndexedClassFinder implements ClassFinder {
                             names.add(name);
                         }
                     }
-                } finally {
-                    reader.close();
                 }
             } catch (final IOException e) {
                 Logs.warn("Problem reading: {}", url, e);
@@ -90,12 +89,14 @@ public final class IndexedClassFinder implements ClassFinder {
         return names;
     }
 
+    @Override
     public Enumeration<URL> findClasses(final ClassSpace space) {
         final Iterator<String> itr = indexedNames(space).iterator();
 
         return new Enumeration<URL>() {
             private URL nextURL;
 
+            @Override
             public boolean hasMoreElements() {
                 while (null == nextURL && itr.hasNext()) {
                     nextURL = space.getResource(itr.next().replace('.', '/') + ".class");
@@ -103,6 +104,7 @@ public final class IndexedClassFinder implements ClassFinder {
                 return null != nextURL;
             }
 
+            @Override
             public URL nextElement() {
                 if (hasMoreElements()) {
                     final URL tempURL = nextURL;

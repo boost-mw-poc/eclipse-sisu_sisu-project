@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -79,6 +80,7 @@ public final class SisuIndexAPT6 extends AbstractSisuIndex implements Processor 
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public void init(final ProcessingEnvironment _environment) {
         environment = _environment;
         qualifiers = _environment.getOptions().get(QUALIFIERS);
@@ -87,6 +89,7 @@ public final class SisuIndexAPT6 extends AbstractSisuIndex implements Processor 
         }
     }
 
+    @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment round) {
         final Elements elementUtils = environment.getElementUtils();
         for (final TypeElement anno : annotations) {
@@ -106,6 +109,7 @@ public final class SisuIndexAPT6 extends AbstractSisuIndex implements Processor 
         return false;
     }
 
+    @Override
     public Iterable<? extends Completion> getCompletions(
             final Element element,
             final AnnotationMirror annotation,
@@ -114,6 +118,7 @@ public final class SisuIndexAPT6 extends AbstractSisuIndex implements Processor 
         return Collections.emptySet();
     }
 
+    @Override
     public Set<String> getSupportedAnnotationTypes() {
         if (ALL.equalsIgnoreCase(qualifiers)) {
             return Collections.singleton("*");
@@ -122,7 +127,7 @@ public final class SisuIndexAPT6 extends AbstractSisuIndex implements Processor 
             return Collections.emptySet();
         }
         if (qualifiers != null && qualifiers.length() > 0) {
-            final Set<String> annotationTypes = new HashSet<String>();
+            final Set<String> annotationTypes = new HashSet<>();
             for (String type : Tokens.splitByComma(qualifiers)) {
                 annotationTypes.add(type);
             }
@@ -131,10 +136,12 @@ public final class SisuIndexAPT6 extends AbstractSisuIndex implements Processor 
         return Collections.singleton(NAMED);
     }
 
+    @Override
     public Set<String> getSupportedOptions() {
         return Collections.singleton(QUALIFIERS);
     }
 
+    @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.latestSupported();
     }
@@ -156,7 +163,7 @@ public final class SisuIndexAPT6 extends AbstractSisuIndex implements Processor 
     @Override
     protected Reader getReader(final String path) throws IOException {
         final FileObject file = environment.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", path);
-        return new InputStreamReader(file.openInputStream(), "UTF-8");
+        return new InputStreamReader(file.openInputStream(), StandardCharsets.UTF_8);
     }
 
     @Override

@@ -35,7 +35,7 @@ public final class BundleClassSpace implements ClassSpace {
 
     private static final URL[] NO_URLS = {};
 
-    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration(Collections.<URL>emptySet());
+    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration(Collections.emptySet());
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -57,6 +57,7 @@ public final class BundleClassSpace implements ClassSpace {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public Class<?> loadClass(final String name) {
         try {
             return bundle.loadClass(name);
@@ -65,14 +66,17 @@ public final class BundleClassSpace implements ClassSpace {
         }
     }
 
+    @Override
     public DeferredClass<?> deferLoadClass(final String name) {
         return new NamedClass<>(this, name);
     }
 
+    @Override
     public URL getResource(final String name) {
         return bundle.getResource(name);
     }
 
+    @Override
     public Enumeration<URL> getResources(final String name) {
         try {
             final Enumeration<URL> resources = bundle.getResources(name);
@@ -82,12 +86,13 @@ public final class BundleClassSpace implements ClassSpace {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Enumeration<URL> findEntries(final String path, final String glob, final boolean recurse) {
         final URL[] classPath = getBundleClassPath();
         final Enumeration<URL> entries = bundle.findEntries(null != path ? path : "/", glob, recurse);
         if (classPath.length > 0) {
-            return new ChainedEnumeration<URL>(entries, new ResourceEnumeration(path, glob, recurse, classPath));
+            return new ChainedEnumeration<>(entries, new ResourceEnumeration(path, glob, recurse, classPath));
         }
         return null != entries ? entries : NO_ENTRIES;
     }
@@ -130,8 +135,8 @@ public final class BundleClassSpace implements ClassSpace {
             if (null == path) {
                 bundleClassPath = NO_URLS;
             } else {
-                final List<URL> classPath = new ArrayList<URL>();
-                final Set<String> visited = new HashSet<String>();
+                final List<URL> classPath = new ArrayList<>();
+                final Set<String> visited = new HashSet<>();
 
                 visited.add(".");
 
@@ -178,6 +183,7 @@ public final class BundleClassSpace implements ClassSpace {
         // Public methods
         // ----------------------------------------------------------------------
 
+        @Override
         public boolean hasMoreElements() {
             for (; index < enumerations.length; index++) {
                 if (null != enumerations[index] && enumerations[index].hasMoreElements()) {
@@ -187,6 +193,7 @@ public final class BundleClassSpace implements ClassSpace {
             return false;
         }
 
+        @Override
         public T nextElement() {
             if (hasMoreElements()) {
                 return enumerations[index].nextElement();

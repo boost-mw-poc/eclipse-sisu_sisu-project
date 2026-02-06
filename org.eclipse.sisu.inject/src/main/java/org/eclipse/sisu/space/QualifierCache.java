@@ -47,15 +47,18 @@ final class QualifierCache implements ClassVisitor {
         this.isStrict = isStrict;
     }
 
+    @Override
     public void enterClass(final int modifiers, final String name, final String _extends, final String[] _implements) {
         // no-op
     }
 
+    @Override
     public AnnotationVisitor visitAnnotation(final String desc) {
         isQualified |= QUALIFIER_DESC.equals(desc);
         return null;
     }
 
+    @Override
     public void leaveClass() {
         // no-op
     }
@@ -94,7 +97,7 @@ final class QualifierCache implements ClassVisitor {
      * @return Seeded results
      */
     private static Map<String, Boolean> seedResults() {
-        final Map<String, Boolean> results = new ConcurrentHashMap<String, Boolean>(32, 0.75f, 1);
+        final Map<String, Boolean> results = new ConcurrentHashMap<>(32, 0.75f, 1);
         try {
             final String qualifiers = System.getProperty("sisu.qualifiers");
             if (qualifiers != null && qualifiers.length() > 0) {

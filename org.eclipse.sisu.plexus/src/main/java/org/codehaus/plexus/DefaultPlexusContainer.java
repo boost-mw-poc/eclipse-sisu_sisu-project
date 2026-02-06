@@ -110,10 +110,9 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
 
     final AtomicInteger plexusRank = new AtomicInteger();
 
-    final Map<ClassRealm, List<ComponentDescriptor<?>>> descriptorMap =
-            new IdentityHashMap<ClassRealm, List<ComponentDescriptor<?>>>();
+    final Map<ClassRealm, List<ComponentDescriptor<?>>> descriptorMap = new IdentityHashMap<>();
 
-    final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
+    final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<>();
 
     final LoggerManagerProvider loggerManagerProvider = new LoggerManagerProvider();
 
@@ -190,7 +189,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
 
         setLookupRealm(containerRealm);
 
-        final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
+        final List<PlexusBeanModule> beanModules = new ArrayList<>();
 
         final ClassSpace space = new URLClassSpace(containerRealm);
         beanModules.add(new PlexusXmlBeanModule(space, variables, plexusXml));
@@ -212,6 +211,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     // Context methods
     // ----------------------------------------------------------------------
 
+    @Override
     public Context getContext() {
         return context;
     }
@@ -220,22 +220,27 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     // Lookup methods
     // ----------------------------------------------------------------------
 
+    @Override
     public Object lookup(final String role) throws ComponentLookupException {
         return lookup(role, "");
     }
 
+    @Override
     public Object lookup(final String role, final String hint) throws ComponentLookupException {
         return lookup(null, role, hint);
     }
 
+    @Override
     public <T> T lookup(final Class<T> role) throws ComponentLookupException {
         return lookup(role, "");
     }
 
+    @Override
     public <T> T lookup(final Class<T> role, final String hint) throws ComponentLookupException {
         return lookup(role, null, hint);
     }
 
+    @Override
     public <T> T lookup(final Class<T> type, final String role, final String hint) throws ComponentLookupException {
         try {
             return locate(role, type, hint).iterator().next().getValue();
@@ -244,42 +249,51 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
         }
     }
 
+    @Override
     public List<Object> lookupList(final String role) throws ComponentLookupException {
-        return new EntryListAdapter<Object>(locate(role, null));
+        return new EntryListAdapter<>(locate(role, null));
     }
 
+    @Override
     public <T> List<T> lookupList(final Class<T> role) throws ComponentLookupException {
-        return new EntryListAdapter<T>(locate(null, role));
+        return new EntryListAdapter<>(locate(null, role));
     }
 
+    @Override
     public Map<String, Object> lookupMap(final String role) throws ComponentLookupException {
-        return new EntryMapAdapter<String, Object>(locate(role, null));
+        return new EntryMapAdapter<>(locate(role, null));
     }
 
+    @Override
     public <T> Map<String, T> lookupMap(final Class<T> role) throws ComponentLookupException {
-        return new EntryMapAdapter<String, T>(locate(null, role));
+        return new EntryMapAdapter<>(locate(null, role));
     }
 
     // ----------------------------------------------------------------------
     // Query methods
     // ----------------------------------------------------------------------
 
+    @Override
     public boolean hasComponent(final String role) {
         return hasComponent(role, "");
     }
 
+    @Override
     public boolean hasComponent(final String role, final String hint) {
         return hasComponent(null, role, hint);
     }
 
+    @Override
     public boolean hasComponent(final Class role) {
         return hasComponent(role, "");
     }
 
+    @Override
     public boolean hasComponent(final Class role, final String hint) {
         return hasComponent(role, null, hint);
     }
 
+    @Override
     public boolean hasComponent(final Class type, final String role, final String hint) {
         return hasPlexusBeans(locate(role, type, hint));
     }
@@ -288,6 +302,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     // Component descriptor methods
     // ----------------------------------------------------------------------
 
+    @Override
     public void addComponent(final Object component, final String role) {
         try {
             addComponent(component, component.getClass().getClassLoader().loadClass(role), Hints.DEFAULT_HINT);
@@ -296,10 +311,12 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
         }
     }
 
+    @Override
     public <T> void addComponent(final T component, final Class<?> role, final String hint) {
         // this is only used in Maven3 tests, so keep it simple...
         qualifiedBeanLocator.add(new InjectorBindings(
                 Guice.createInjector(new Module() {
+                    @Override
                     public void configure(final Binder binder) {
                         if (Hints.isDefaultHint(hint)) {
                             binder.bind((Class) role).toInstance(component);
@@ -313,6 +330,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
                 new DefaultRankingFunction(plexusRank.incrementAndGet())));
     }
 
+    @Override
     public <T> void addComponentDescriptor(final ComponentDescriptor<T> descriptor) {
         ClassRealm realm = descriptor.getRealm();
         if (null == realm) {
@@ -320,11 +338,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
             descriptor.setRealm(realm);
         }
         synchronized (descriptorMap) {
-            List<ComponentDescriptor<?>> descriptors = descriptorMap.get(realm);
-            if (null == descriptors) {
-                descriptors = new ArrayList<ComponentDescriptor<?>>();
-                descriptorMap.put(realm, descriptors);
-            }
+            List<ComponentDescriptor<?>> descriptors = descriptorMap.computeIfAbsent(realm, k -> new ArrayList<>());
             descriptors.add(descriptor);
         }
         if (containerRealm == realm) {
@@ -332,10 +346,12 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
         }
     }
 
+    @Override
     public ComponentDescriptor<?> getComponentDescriptor(final String role, final String hint) {
         return getComponentDescriptor(null, role, hint);
     }
 
+    @Override
     public <T> ComponentDescriptor<T> getComponentDescriptor(
             final Class<T> type, final String role, final String hint) {
         final Iterator<PlexusBean<T>> i = locate(role, type, hint).iterator();
@@ -348,37 +364,42 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
         return null;
     }
 
+    @Override
     public List getComponentDescriptorList(final String role) {
         return getComponentDescriptorList(null, role);
     }
 
+    @Override
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList(final Class<T> type, final String role) {
-        final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
+        final List<ComponentDescriptor<T>> tempList = new ArrayList<>();
         for (final PlexusBean<T> bean : locate(role, type)) {
             tempList.add(newComponentDescriptor(role, bean));
         }
         return tempList;
     }
 
+    @Override
     public Map getComponentDescriptorMap(final String role) {
         return getComponentDescriptorMap(null, role);
     }
 
+    @Override
     public <T> Map<String, ComponentDescriptor<T>> getComponentDescriptorMap(final Class<T> type, final String role) {
-        final Map<String, ComponentDescriptor<T>> tempMap = new LinkedHashMap<String, ComponentDescriptor<T>>();
+        final Map<String, ComponentDescriptor<T>> tempMap = new LinkedHashMap<>();
         for (final PlexusBean<T> bean : locate(role, type)) {
             tempMap.put(bean.getKey(), newComponentDescriptor(role, bean));
         }
         return tempMap;
     }
 
+    @Override
     public List<ComponentDescriptor<?>> discoverComponents(final ClassRealm realm) {
         return discoverComponents(realm, NO_CUSTOM_MODULES);
     }
 
     public List<ComponentDescriptor<?>> discoverComponents(final ClassRealm realm, final Module... customModules) {
         try {
-            final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
+            final List<PlexusBeanModule> beanModules = new ArrayList<>();
             synchronized (descriptorMap) {
                 final ClassSpace space = new URLClassSpace(realm);
                 final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove(realm);
@@ -407,7 +428,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
 
     public Injector addPlexusInjector(
             final List<? extends PlexusBeanModule> beanModules, final Module... customModules) {
-        final List<Module> modules = new ArrayList<Module>();
+        final List<Module> modules = new ArrayList<>();
 
         modules.add(containerModule);
         Collections.addAll(modules, customModules);
@@ -421,24 +442,29 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     // Class realm methods
     // ----------------------------------------------------------------------
 
+    @Override
     public ClassWorld getClassWorld() {
         return containerRealm.getWorld();
     }
 
+    @Override
     public ClassRealm getContainerRealm() {
         return containerRealm;
     }
 
+    @Override
     public ClassRealm setLookupRealm(final ClassRealm realm) {
         final ClassRealm oldRealm = lookupRealm.get();
         lookupRealm.set(realm);
         return oldRealm;
     }
 
+    @Override
     public ClassRealm getLookupRealm() {
         return lookupRealm.get();
     }
 
+    @Override
     public ClassRealm createChildRealm(final String id) {
         try {
             return containerRealm.createChildRealm(id);
@@ -455,10 +481,12 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     // Logger methods
     // ----------------------------------------------------------------------
 
+    @Override
     public synchronized LoggerManager getLoggerManager() {
         return loggerManager;
     }
 
+    @Override
     @Inject(optional = true)
     public synchronized void setLoggerManager(final LoggerManager loggerManager) {
         if (null != loggerManager) {
@@ -469,6 +497,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
         logger = null; // refresh our local logger
     }
 
+    @Override
     public synchronized Logger getLogger() {
         if (null == logger) {
             logger = loggerManager.getLoggerForComponent(PlexusContainer.class.getName(), null);
@@ -480,22 +509,26 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     // Shutdown methods
     // ----------------------------------------------------------------------
 
+    @Override
     public void release(final Object component) {
         plexusBeanManager.unmanage(component);
     }
 
+    @Override
     public void releaseAll(final Map<String, ?> components) {
         for (final Object o : components.values()) {
             release(o);
         }
     }
 
+    @Override
     public void releaseAll(final List<?> components) {
         for (final Object o : components) {
             release(o);
         }
     }
 
+    @Override
     public void dispose() {
         disposing = true;
 
@@ -609,7 +642,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
         if (null == role || null != type && type.getName().equals(role)) {
             return plexusBeanLocator.locate(TypeLiteral.get(type), canonicalHints);
         }
-        final Set<Class> candidates = new HashSet<Class>();
+        final Set<Class> candidates = new HashSet<>();
         for (final ClassRealm realm : getVisibleRealms()) {
             try {
                 final Class clazz = realm.loadClass(role);
@@ -628,7 +661,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
 
     private Collection<ClassRealm> getVisibleRealms() {
         final Object[] realms = getClassWorld().getRealms().toArray();
-        final Set<ClassRealm> visibleRealms = new LinkedHashSet<ClassRealm>(realms.length);
+        final Set<ClassRealm> visibleRealms = new LinkedHashSet<>(realms.length);
         final ClassRealm currentLookupRealm = getLookupRealm();
         if (null != currentLookupRealm) {
             visibleRealms.add(currentLookupRealm);
@@ -661,7 +694,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     }
 
     private static <T> ComponentDescriptor<T> newComponentDescriptor(final String role, final PlexusBean<T> bean) {
-        final ComponentDescriptor<T> cd = new ComponentDescriptor<T>();
+        final ComponentDescriptor<T> cd = new ComponentDescriptor<>();
         cd.setRole(role);
         cd.setRoleHint(bean.getKey());
         cd.setImplementationClass(bean.getImplementationClass());
@@ -676,6 +709,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
             this.customBootModules = customBootModules;
         }
 
+        @Override
         public void configure(final Binder binder) {
             binder.requestInjection(DefaultPlexusContainer.this);
             for (final Module m : customBootModules) {
@@ -685,6 +719,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     }
 
     final class ContainerModule implements Module {
+        @Override
         public void configure(final Binder binder) {
             binder.bind(Context.class).toInstance(context);
             binder.bind(ParameterKeys.PROPERTIES).toInstance(context.getContextData());
@@ -706,6 +741,7 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
 
         private final PlexusDateTypeConverter dateConverter = new PlexusDateTypeConverter();
 
+        @Override
         public void configure(final Binder binder) {
             binder.bind(LoggerManager.class).toProvider(loggerManagerProvider);
             binder.bind(Logger.class).toProvider(loggerProvider);
@@ -722,26 +758,31 @@ public final class DefaultPlexusContainer implements MutablePlexusContainer {
     }
 
     final class LoggerManagerProvider implements DeferredProvider<LoggerManager> {
+        @Override
         public LoggerManager get() {
             return getLoggerManager();
         }
 
+        @Override
         public DeferredClass<LoggerManager> getImplementationClass() {
-            return new LoadedClass<LoggerManager>(get().getClass());
+            return new LoadedClass<>(get().getClass());
         }
     }
 
     final class LoggerProvider implements DeferredProvider<Logger> {
+        @Override
         public Logger get() {
             return getLogger();
         }
 
+        @Override
         public DeferredClass<Logger> getImplementationClass() {
-            return new LoadedClass<Logger>(get().getClass());
+            return new LoadedClass<>(get().getClass());
         }
     }
 
     final class SLF4JLoggerFactoryProvider implements Provider<Object> {
+        @Override
         public Object get() {
             return plexusBeanLocator
                     .locate(TypeLiteral.get(org.slf4j.ILoggerFactory.class))

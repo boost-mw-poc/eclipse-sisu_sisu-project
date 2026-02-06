@@ -61,6 +61,7 @@ public final class PlexusSpaceModule implements Module {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public void configure(final Binder binder) {
         final Context context = new ParameterizedContext();
         binder.bind(Context.class).toInstance(context);
@@ -83,7 +84,7 @@ public final class PlexusSpaceModule implements Module {
 
         binder.bind(BeanManager.class).toInstance(manager);
 
-        final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
+        final List<PlexusBeanModule> beanModules = new ArrayList<>();
 
         final Map<?, ?> variables = new ContextMapAdapter(context);
         beanModules.add(new PlexusXmlBeanModule(space, variables));

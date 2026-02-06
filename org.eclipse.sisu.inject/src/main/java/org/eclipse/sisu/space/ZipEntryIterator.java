@@ -54,15 +54,18 @@ final class ZipEntryIterator implements Iterator<String> {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public boolean hasNext() {
         return index < entryNames.length;
     }
 
+    @Override
     public String next() // NOSONAR
             {
         return entryNames[index++];
     }
 
+    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }
@@ -98,7 +101,7 @@ final class ZipEntryIterator implements Iterator<String> {
      */
     private static String[] getEntryNames(final ZipInputStream zipStream) throws IOException {
         try {
-            final List<String> names = new ArrayList<String>(64);
+            final List<String> names = new ArrayList<>(64);
             for (ZipEntry e = zipStream.getNextEntry(); e != null; e = zipStream.getNextEntry()) // NOSONAR
             {
                 names.add(e.getName());

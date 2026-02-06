@@ -50,7 +50,7 @@ class BundleClassSpaceTest {
     @BeforeEach
     void setUp() throws Exception {
 
-        final Map<String, String> configuration = new HashMap<String, String>();
+        final Map<String, String> configuration = new HashMap<>();
         configuration.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
         configuration.put(Constants.FRAMEWORK_STORAGE, "target/bundlecache");
 
@@ -75,22 +75,27 @@ class BundleClassSpaceTest {
         assertEquals(space, new BundleClassSpace(testBundle));
 
         assertFalse(space.equals(new ClassSpace() {
+            @Override
             public Class<?> loadClass(final String name) {
                 return space.loadClass(name);
             }
 
+            @Override
             public DeferredClass<?> deferLoadClass(final String name) {
                 return space.deferLoadClass(name);
             }
 
+            @Override
             public Enumeration<URL> getResources(final String name) {
                 return space.getResources(name);
             }
 
+            @Override
             public URL getResource(final String name) {
                 return space.getResource(name);
             }
 
+            @Override
             public Enumeration<URL> findEntries(final String path, final String glob, final boolean recurse) {
                 return space.findEntries(path, glob, recurse);
             }
@@ -181,6 +186,7 @@ class BundleClassSpaceTest {
     @Test
     void testBrokenResources() {
         final InvocationHandler handler = new InvocationHandler() {
+            @Override
             public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
                 throw new IOException();
             }

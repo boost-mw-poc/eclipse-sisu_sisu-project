@@ -32,8 +32,7 @@ public class SisuExtender implements BundleActivator {
     // ----------------------------------------------------------------------
 
     // track locators (per-extender-bundle) so they can be re-used when possible
-    private static final Map<Long, MutableBeanLocator> locators =
-            Collections.synchronizedMap(Weak.<Long, MutableBeanLocator>values());
+    private static final Map<Long, MutableBeanLocator> locators = Collections.synchronizedMap(Weak.values());
 
     /**
      * Tracker of component bundles.
@@ -44,11 +43,13 @@ public class SisuExtender implements BundleActivator {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public void start(final BundleContext context) {
         tracker = createTracker(context);
         tracker.open();
     }
 
+    @Override
     public void stop(final BundleContext context) {
         tracker.close();
         tracker = null;

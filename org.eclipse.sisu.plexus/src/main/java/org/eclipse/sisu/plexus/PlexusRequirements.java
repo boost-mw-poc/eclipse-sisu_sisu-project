@@ -79,6 +79,7 @@ final class PlexusRequirements {
         } catch (final RuntimeException e) {
             // defer until later...
             return new Provider<T>() {
+                @Override
                 public T get() {
                     throw new ProvisionException("Error in requirement: " + property, e);
                 }
@@ -142,8 +143,9 @@ final class PlexusRequirements {
         // Public methods
         // ----------------------------------------------------------------------
 
+        @Override
         public Map<String, T> get() {
-            return new EntryMapAdapter<String, T>(locate());
+            return new EntryMapAdapter<>(locate());
         }
     }
 
@@ -164,8 +166,9 @@ final class PlexusRequirements {
         // Public methods
         // ----------------------------------------------------------------------
 
+        @Override
         public List<T> get() {
-            return new EntryListAdapter<T>(locate());
+            return new EntryListAdapter<>(locate());
         }
     }
 
@@ -186,8 +189,9 @@ final class PlexusRequirements {
         // Public methods
         // ----------------------------------------------------------------------
 
+        @Override
         public Set<T> get() {
-            return new EntrySetAdapter<T>(locate());
+            return new EntrySetAdapter<>(locate());
         }
     }
 
@@ -208,6 +212,7 @@ final class PlexusRequirements {
         // Public methods
         // ----------------------------------------------------------------------
 
+        @Override
         public T get() {
             // pick first bean: supports both specific and wildcard lookup
             final Iterator<? extends Entry<String, T>> i = locate().iterator();

@@ -95,6 +95,7 @@ public final class ServiceBindings implements BindingPublisher {
         return System.getProperty(ServiceBindings.class.getName() + ".ignore", "");
     }
 
+    @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     public <T> void subscribe(final BindingSubscriber<T> subscriber) {
         final String clazzName = subscriber.type().getRawType().getName();
@@ -111,6 +112,7 @@ public final class ServiceBindings implements BindingPublisher {
         }
     }
 
+    @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     public <T> void unsubscribe(final BindingSubscriber<T> subscriber) {
         final String clazzName = subscriber.type().getRawType().getName();
@@ -120,10 +122,12 @@ public final class ServiceBindings implements BindingPublisher {
         }
     }
 
+    @Override
     public int maxBindingRank() {
         return maxRank;
     }
 
+    @Override
     public <T> T adapt(final Class<T> type) {
         return null;
     }
@@ -147,7 +151,7 @@ public final class ServiceBindings implements BindingPublisher {
     }
 
     private static String[] parseGlobs(final String globs) {
-        final List<String> patterns = new ArrayList<String>();
+        final List<String> patterns = new ArrayList<>();
         for (final String glob : Tokens.splitByComma(globs)) {
             patterns.add(GlobberStrategy.PATTERN.compile(glob));
         }

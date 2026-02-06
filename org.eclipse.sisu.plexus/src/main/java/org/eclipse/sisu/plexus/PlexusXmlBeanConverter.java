@@ -68,6 +68,7 @@ public final class PlexusXmlBeanConverter implements PlexusBeanConverter {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Object convert(final TypeLiteral role, final String value) {
         if (value.trim().startsWith("<")) {
@@ -236,7 +237,7 @@ public final class PlexusXmlBeanConverter implements PlexusBeanConverter {
         final Object bean = newImplementation(clazz);
 
         // build map of all known bean properties belonging to the chosen implementation
-        final Map<String, BeanProperty<Object>> propertyMap = new HashMap<String, BeanProperty<Object>>();
+        final Map<String, BeanProperty<Object>> propertyMap = new HashMap<>();
         for (final BeanProperty<Object> property : new BeanProperties(clazz)) {
             final String name = property.getName();
             if (!propertyMap.containsKey(name)) {
@@ -332,11 +333,9 @@ public final class PlexusXmlBeanConverter implements PlexusBeanConverter {
     private static <T> T newImplementation(final Class<T> clazz, final String value) {
         try {
             return clazz.getConstructor(String.class).newInstance(value);
-        } catch (final Exception e) {
+        } catch (final LinkageError | Exception e) {
             final Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
             throw new IllegalArgumentException(String.format(CONVERSION_ERROR, value, clazz), cause);
-        } catch (final LinkageError e) {
-            throw new IllegalArgumentException(String.format(CONVERSION_ERROR, value, clazz), e);
         }
     }
 

@@ -72,11 +72,9 @@ final class GlueLoader extends ClassLoader {
             return (T) dynamicGlue(type.getRawType())
                     .getConstructor(Provider.class)
                     .newInstance(provider);
-        } catch (final Exception e) {
+        } catch (final LinkageError | Exception e) {
             final Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
             throw new ProvisionException("Error proxying: " + type, cause);
-        } catch (final LinkageError e) {
-            throw new ProvisionException("Error proxying: " + type, e);
         }
     }
 
@@ -162,10 +160,12 @@ final class GlueLoader extends ClassLoader {
      * Returns new {@link GlueLoader} that delegates to the given {@link ClassLoader}.
      */
     private static GlueLoader createGlue(final ClassLoader parent) {
-        return AccessController.doPrivileged(new PrivilegedAction<GlueLoader>() {
-            public GlueLoader run() {
-                return null != parent ? new GlueLoader(parent) : new GlueLoader();
-            }
-        });
+        return AccessController.doPrivileged(
+                new PrivilegedAction<GlueLoader>() { // NOSONAR
+                    @Override
+                    public GlueLoader run() {
+                        return null != parent ? new GlueLoader(parent) : new GlueLoader();
+                    }
+                });
     }
 }

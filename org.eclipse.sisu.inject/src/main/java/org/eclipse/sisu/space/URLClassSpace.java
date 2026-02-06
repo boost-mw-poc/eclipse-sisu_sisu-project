@@ -60,7 +60,7 @@ public class URLClassSpace implements ClassSpace {
 
     private static final URL[] NO_URLS = {};
 
-    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration(Collections.<URL>emptySet());
+    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration(Collections.emptySet());
 
     private static final String[] EMPTY_CLASSPATH = {};
 
@@ -117,24 +117,26 @@ public class URLClassSpace implements ClassSpace {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public final Class<?> loadClass(final String name) {
         try {
             return loader.loadClass(name);
-        } catch (final Exception e) {
-            throw new TypeNotPresentException(name, e);
-        } catch (final LinkageError e) {
+        } catch (final LinkageError | Exception e) {
             throw new TypeNotPresentException(name, e);
         }
     }
 
+    @Override
     public final DeferredClass<?> deferLoadClass(final String name) {
         return new NamedClass<>(this, name);
     }
 
+    @Override
     public final URL getResource(final String name) {
         return loader.getResource(name);
     }
 
+    @Override
     public final Enumeration<URL> getResources(final String name) {
         try {
             final Enumeration<URL> resources = loader.getResources(name);
@@ -144,6 +146,7 @@ public class URLClassSpace implements ClassSpace {
         }
     }
 
+    @Override
     public final Enumeration<URL> findEntries(final String path, final String glob, final boolean recurse) {
         // short-circuit finding resources with fixed names from default system class-path
         if (null != SYSTEM_LOADER
@@ -298,25 +301,16 @@ public class URLClassSpace implements ClassSpace {
     private static String[] getClassPathEntries(final URL url) throws IOException {
         final Manifest manifest;
         if (url.getPath().endsWith("/")) {
-            final InputStream in = Streams.open(new URL(url, MANIFEST_ENTRY));
-            try {
+            try (InputStream in = Streams.open(new URL(url, MANIFEST_ENTRY))) {
                 manifest = new Manifest(in);
-            } finally {
-                in.close();
             }
         } else if ("file".equals(url.getProtocol())) {
-            final JarFile jf = new JarFile(FileEntryIterator.toFile(url));
-            try {
+            try (JarFile jf = new JarFile(FileEntryIterator.toFile(url))) {
                 manifest = jf.getManifest();
-            } finally {
-                jf.close();
             }
         } else {
-            final JarInputStream jin = new JarInputStream(Streams.open(url));
-            try {
+            try (JarInputStream jin = new JarInputStream(Streams.open(url))) {
                 manifest = jin.getManifest();
-            } finally {
-                jin.close();
             }
         }
         if (null != manifest) {

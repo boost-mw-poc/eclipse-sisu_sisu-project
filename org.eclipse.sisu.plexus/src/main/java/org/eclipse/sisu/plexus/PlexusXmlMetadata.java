@@ -44,14 +44,17 @@ final class PlexusXmlMetadata implements PlexusBeanMetadata {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     public boolean isEmpty() {
         return configurationMap.isEmpty() && requirementMap.isEmpty();
     }
 
+    @Override
     public Configuration getConfiguration(final BeanProperty<?> property) {
         return configurationMap.remove(property.getName());
     }
 
+    @Override
     public Requirement getRequirement(final BeanProperty<?> property) {
         Requirement requirement = requirementMap.remove(property.getName());
         if (null == requirement) {
@@ -98,7 +101,7 @@ final class PlexusXmlMetadata implements PlexusBeanMetadata {
         }
 
         // primary mappings always override secondary mappings
-        final Map<K, V> tempMap = new HashMap<K, V>(secondary);
+        final Map<K, V> tempMap = new HashMap<>(secondary);
         tempMap.putAll(primary);
         return tempMap;
     }

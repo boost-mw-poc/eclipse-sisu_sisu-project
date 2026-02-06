@@ -86,11 +86,9 @@ public final class InjectorBindings implements BindingPublisher {
                     // create a new instance from the parent template, this time using the current injector
                     return (BindingPublisher)
                             impl.getConstructor(Injector.class).newInstance(injector);
-                } catch (final Exception e) {
+                } catch (final LinkageError | Exception e) {
                     final Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
                     Logs.debug("Problem creating: {}", impl, cause);
-                } catch (final LinkageError e) {
-                    Logs.debug("Problem creating: {}", impl, e);
                 }
             }
         }
@@ -103,6 +101,7 @@ public final class InjectorBindings implements BindingPublisher {
         return null != binding ? binding.getProvider().get() : DEFAULT_RANKING_FUNCTION;
     }
 
+    @Override
     public <T> void subscribe(final BindingSubscriber<T> subscriber) {
         final TypeLiteral<T> type = subscriber.type();
         final Class<?> clazz = type.getRawType();
@@ -117,6 +116,7 @@ public final class InjectorBindings implements BindingPublisher {
         publishWildcardMatches(type, subscriber);
     }
 
+    @Override
     public <T> void unsubscribe(final BindingSubscriber<T> subscriber) {
         final Map<Key<?>, ?> ourBindings = injector.getBindings();
         for (final Binding<T> binding : subscriber.bindings()) {
@@ -126,10 +126,12 @@ public final class InjectorBindings implements BindingPublisher {
         }
     }
 
+    @Override
     public int maxBindingRank() {
         return function.maxRank();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T adapt(final Class<T> type) {
         return Injector.class == type ? (T) injector : null;
@@ -226,7 +228,7 @@ public final class InjectorBindings implements BindingPublisher {
         if (null == wildcards) {
             synchronized (this) {
                 if (null == wildcards) {
-                    final List<Binding<?>> visible = new ArrayList<Binding<?>>();
+                    final List<Binding<?>> visible = new ArrayList<>();
                     final List<Binding<Object>> candidates = injector.findBindingsByType(OBJECT_TYPE_LITERAL);
                     for (int i = 0, size = candidates.size(); i < size; i++) {
                         final Binding<?> binding = candidates.get(i);

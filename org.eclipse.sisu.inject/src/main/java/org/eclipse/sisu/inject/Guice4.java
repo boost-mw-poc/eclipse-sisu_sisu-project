@@ -139,12 +139,14 @@ public final class Guice4 {
                     // attempt to invoke the @Provides Method statically via reflection
                     final ProvidesMethodBinding providesMethod = (ProvidesMethodBinding) provider;
                     if (!providesMethod.getMethod().isAccessible()) {
-                        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                            public Void run() {
-                                providesMethod.getMethod().setAccessible(true);
-                                return null;
-                            }
-                        });
+                        AccessController.doPrivileged(
+                                new PrivilegedAction<Void>() { // NOSONAR
+                                    @Override
+                                    public Void run() {
+                                        providesMethod.getMethod().setAccessible(true);
+                                        return null;
+                                    }
+                                });
                     }
                     return providesMethod.getMethod().invoke(providesMethod.getEnclosingInstance());
                 } catch (final LinkageError | Exception e) {
@@ -174,6 +176,7 @@ public final class Guice4 {
         return new Provider<T>() {
             private volatile Object value = NIL; // NOSONAR
 
+            @Override
             public T get() {
                 if (NIL == value) {
                     synchronized (this) {

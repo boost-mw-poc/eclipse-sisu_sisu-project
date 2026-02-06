@@ -71,6 +71,7 @@ public class PlexusRequirementTest extends TestCase {
                 install(new PlexusBindingModule(
                         null,
                         new PlexusBeanModule() {
+                            @Override
                             public PlexusBeanSource configure(final Binder binder) {
                                 binder.bind(Alpha.class).to(AlphaImpl.class).in(Scopes.SINGLETON);
                                 binder.bind(Omega.class).to(OmegaImpl.class).in(Scopes.SINGLETON);
@@ -480,7 +481,7 @@ public class PlexusRequirementTest extends TestCase {
     }
 
     public void testPlexus121Compatibility() throws Exception {
-        final List<URL> urls = new ArrayList<URL>();
+        final List<URL> urls = new ArrayList<>();
         urls.add(new File("target/dependency/plexus-component-annotations-1.2.1.jar")
                 .toURI()
                 .toURL());

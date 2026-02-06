@@ -83,6 +83,7 @@ public final class QualifiedTypeBinder implements QualifiedTypeListener {
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
     @SuppressWarnings("deprecation")
     public void hear(final Class qualifiedType, final Object source) {
         if (currentSource != source) {
@@ -258,10 +259,11 @@ public final class QualifiedTypeBinder implements QualifiedTypeListener {
             // slightly roundabout approach, but it might be private
             final Constructor<T> ctor = type.getDeclaredConstructor();
             if (!ctor.isAccessible()) {
-                AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-                    ctor.setAccessible(true);
-                    return null;
-                });
+                AccessController.doPrivileged((PrivilegedAction<Void>) // NOSONAR
+                        () -> {
+                            ctor.setAccessible(true);
+                            return null;
+                        });
             }
 
             // record this instance was created
@@ -269,12 +271,9 @@ public final class QualifiedTypeBinder implements QualifiedTypeListener {
             bindQualifiedInstance(instance);
 
             return instance;
-        } catch (final Exception e) {
+        } catch (final LinkageError | Exception e) {
             final Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
             binder.addError("Error creating instance of: " + type + " reason: " + cause);
-            return null;
-        } catch (final LinkageError e) {
-            binder.addError("Error creating instance of: " + type + " reason: " + e);
             return null;
         }
     }

@@ -54,6 +54,7 @@ final class BeanProviders {
      */
     public <K extends Annotation, V> Provider<Iterable<? extends BeanEntry<K, V>>> beanEntriesOf(final Key<V> key) {
         return new Provider<Iterable<? extends BeanEntry<K, V>>>() {
+            @Override
             public Iterable<? extends BeanEntry<K, V>> get() {
                 return locator.get().locate(key);
             }
@@ -72,6 +73,7 @@ final class BeanProviders {
         }
         final Provider<Iterable<BeanEntry>> beanEntries = beanEntriesOf(key.ofType(TypeArguments.get(type, 0)));
         return new Provider<Iterable<Entry<K, V>>>() {
+            @Override
             public Iterable<Entry<K, V>> get() {
                 return new ProviderIterableAdapter(beanEntries.get());
             }
@@ -84,8 +86,9 @@ final class BeanProviders {
     public <K extends Annotation, V> Provider<List<V>> listOf(final Key<V> key) {
         final Provider<Iterable<Entry<K, V>>> entries = entriesOf(key);
         return new Provider<List<V>>() {
+            @Override
             public List<V> get() {
-                return new EntryListAdapter<V>(entries.get());
+                return new EntryListAdapter<>(entries.get());
             }
         };
     }
@@ -96,8 +99,9 @@ final class BeanProviders {
     public <K extends Annotation, V> Provider<Set<V>> setOf(final Key<V> key) {
         final Provider<Iterable<Entry<K, V>>> entries = entriesOf(key);
         return new Provider<Set<V>>() {
+            @Override
             public Set<V> get() {
-                return new EntrySetAdapter<V>(entries.get());
+                return new EntrySetAdapter<>(entries.get());
             }
         };
     }
@@ -108,8 +112,9 @@ final class BeanProviders {
     public <K extends Annotation, V> Provider<Map<K, V>> mapOf(final Key<V> key) {
         final Provider<Iterable<Entry<K, V>>> entries = entriesOf(key);
         return new Provider<Map<K, V>>() {
+            @Override
             public Map<K, V> get() {
-                return new EntryMapAdapter<K, V>(entries.get());
+                return new EntryMapAdapter<>(entries.get());
             }
         };
     }
@@ -120,8 +125,9 @@ final class BeanProviders {
     public <V> Provider<Map<String, V>> stringMapOf(final TypeLiteral<V> type) {
         final Provider<Iterable<Entry<Named, V>>> entries = entriesOf(Key.get(type, Named.class));
         return new Provider<Map<String, V>>() {
+            @Override
             public Map<String, V> get() {
-                return new EntryMapAdapter<String, V>(new NamedIterableAdapter<V>(entries.get()));
+                return new EntryMapAdapter<>(new NamedIterableAdapter<>(entries.get()));
             }
         };
     }
@@ -134,6 +140,7 @@ final class BeanProviders {
         return new Provider<V>() {
             private volatile Iterable<? extends BeanEntry<?, V>> cachedLookup; // NOSONAR
 
+            @Override
             public V get() {
                 if (null == cachedLookup) {
                     cachedLookup = beanEntries.get();
@@ -148,6 +155,6 @@ final class BeanProviders {
      * Provides placeholder beans/providers.
      */
     public <V> Provider<V> placeholderOf(final Key<V> key) {
-        return new PlaceholderBeanProvider<V>(this, key);
+        return new PlaceholderBeanProvider<>(this, key);
     }
 }

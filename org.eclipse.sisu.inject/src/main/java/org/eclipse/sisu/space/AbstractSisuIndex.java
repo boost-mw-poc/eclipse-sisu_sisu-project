@@ -41,7 +41,7 @@ abstract class AbstractSisuIndex {
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<Object, Set<String>> index = new LinkedHashMap<Object, Set<String>>();
+    private final Map<Object, Set<String>> index = new LinkedHashMap<>();
 
     // ----------------------------------------------------------------------
     // Common methods
@@ -116,15 +116,12 @@ abstract class AbstractSisuIndex {
      * @return Table elements
      */
     private Set<String> readTable(final Object name) {
-        final Set<String> table = new TreeSet<String>();
+        final Set<String> table = new TreeSet<>();
         try {
-            final BufferedReader reader = new BufferedReader(getReader(INDEX_FOLDER + name));
-            try {
+            try (BufferedReader reader = new BufferedReader(getReader(INDEX_FOLDER + name))) {
                 for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                     table.add(line);
                 }
-            } finally {
-                reader.close();
             }
         } catch (final IOException e) // NOSONAR
         {
@@ -141,14 +138,11 @@ abstract class AbstractSisuIndex {
      */
     private void writeTable(final Object name, final Set<String> table) {
         try {
-            final BufferedWriter writer = new BufferedWriter(getWriter(INDEX_FOLDER + name));
-            try {
+            try (BufferedWriter writer = new BufferedWriter(getWriter(INDEX_FOLDER + name))) {
                 for (final String line : table) {
                     writer.write(line);
                     writer.newLine();
                 }
-            } finally {
-                writer.close();
             }
         } catch (final IOException e) {
             warn(e.toString());
